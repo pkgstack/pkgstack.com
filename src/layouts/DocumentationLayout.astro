@@ -1,0 +1,44 @@
+---
+import { getCollection, type CollectionEntry } from 'astro:content';
+import DocumentationHeaderAppendix from '#components/DocumentationHeaderAppendix.svelte';
+import Footer from '#components/Footer.astro';
+import Header from '#components/Header.svelte';
+import "#style/global.css"
+import { getArticleTree } from '#lib/getArticleTree';
+interface Props {
+	title: string;
+	listOfTitles: CollectionEntry<"docs">[]
+}
+
+const { title, listOfTitles } = Astro.props;
+
+const collection = await getCollection("docs")
+
+const tree = getArticleTree(collection)
+const slug = Astro.url.pathname.replace(/\/docs\//, "")
+
+const lightTheme = Astro.cookies.get('light')?.boolean() || false;
+
+---
+		
+<!doctype html>
+<html lang="en">
+	<head>
+		<meta charset="UTF-8" />
+		<meta name="description" content="Astro description" />
+		<meta name="viewport" content="width=device-width" />
+		<link rel="icon" type="image/svg+xml" href="/favicon.svg" media="(prefers-color-scheme: light)" />
+		<link rel="icon" type="image/svg+xml" href="/favicon-dark.svg" media="(prefers-color-scheme: dark)" />
+		<title>{title}</title>
+	</head>
+	<body class="w-full min-h-screen">
+		<Header client:load lightThemeEnabled={lightTheme}></Header>
+		<DocumentationHeaderAppendix listOfTitles={listOfTitles} tree={tree} slug={slug}></DocumentationHeaderAppendix>
+		<main class="w-full max-w-full">
+			<div class="prose prose-lg md:prose-xl prose-pre:my-0 prose-pre:py-0 prose-pre:leading-5 w-full max-w-full">
+				<slot />
+			</div>
+		</main>
+		<Footer></Footer>
+	</body>
+</html>

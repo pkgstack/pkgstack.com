@@ -1,0 +1,56 @@
+---
+import PackageSearchBar from "#components/PackageSearchBar.svelte";
+import ContentLayout from "#layouts/ContentLayout.astro";
+import { prisma } from "#lib/server/db";
+import moment from "moment"
+
+
+const { name } = Astro.params;
+
+const packages = await prisma.revision.findMany({
+	where: {
+		name: {
+			contains: name
+		},
+	},
+	distinct: ["name"],
+	orderBy: [{
+		downloadsLastMonth: "desc"
+	}, {
+		createdAt: "desc"
+	}],
+	include: {
+		author: true,
+		_count: {
+			select: {
+				dependencies: true
+			}
+		},
+		maintainers: true
+	}
+})
+
+---
+
+<ContentLayout title={`${name} - Stack`}>
+	<div class="container mx-auto">
+		<PackageSearchBar value={name} client:load></PackageSearchBar>
+		{packages.map((pkg) => (
+			<div class="bg-base-100 p-4 rounded-lg my-4 flex flex-col gap-2">
+				<a class="text-2xl my-0 font-bold" href={`/package/${pkg.name}`}>{pkg.name}</a>
+				<p class="my-0">{pkg.description}</p>
+				<div class="flex flex-row items-center gap-2">
+					<div class="avatar">
+						<div class="w-6 rounded">
+							<img
+								class="my-0"
+								src="https://img.daisyui.com/images/stock/photo-1534528741775-53994a69daeb.webp"
+								alt={pkg.author.name} />
+						</div>
+					</div>
+					<p class="my-0"><span class="font-bold">{pkg.author.name}</span> published <span class="font-mono">{pkg.version}</span> • {moment(pkg.createdAt).fromNow()}</p>
+				</div>
+			</div>
+		))}
+	</div>
+</ContentLayout>

@@ -1,0 +1,23 @@
+---
+import semver from "semver";
+
+const platform = Astro.params.platform;
+
+if (!platform) {
+	return new Response('No platform specified', { status: 400 });
+}
+
+if (Astro.params.version == "latest") {
+	return Astro.redirect(`https://github.com/the-meta-lang/meta/releases/download/latest/meta-${platform}.zip`, 302);
+}
+
+let version = semver.coerce(Astro.params.version, {
+	includePrerelease: true
+});
+
+if (!semver.valid(version)) {
+	return new Response('Invalid version specified, please make sure the version number follows the semantic versioning schema: e.g. 1.0.0 or v1.0.0', { status: 400 });
+}
+
+return Astro.redirect(`https://github.com/the-meta-lang/meta/releases/download/v${version}/meta-${platform}.zip`, 302);
+---

@@ -1,0 +1,36 @@
+---
+import Footer from '../components/Footer.astro';
+import Header from '../components/Header.svelte';
+import "@fontsource/ubuntu-mono";
+import "../style/global.css"
+interface Props {
+	title: string;
+	favicon?: string;
+	favicondark?: string;
+}
+
+const { title, favicon, favicondark } = Astro.props;
+
+const lightTheme = Astro.cookies.get('light')?.boolean() || false;
+---
+
+<!doctype html>
+<html lang="en">
+	<head>
+		<meta charset="UTF-8" />
+		<meta name="description" content="Astro description" />
+		<meta name="viewport" content="width=device-width" />
+		<link rel="icon" type="image/svg+xml" href={favicon ? favicon : "/favicon.svg"} media="(prefers-color-scheme: light)" />
+		<link rel="icon" type="image/svg+xml" href={favicondark ? favicondark : "/favicon-dark.svg"} media="(prefers-color-scheme: dark)" />
+		<title>{title}</title>
+	</head>
+	<body class="w-full">
+		<Header client:load lightThemeEnabled={lightTheme} favicon={favicon}></Header>
+		<main class="my-8 w-full max-w-full">
+			<div class="prose prose-2xl prose-pre:my-0 prose-pre:py-0 prose-pre:leading-5 w-full max-w-full">
+				<slot />
+			</div>
+		</main>
+		<Footer></Footer>
+	</body>
+</html>

@@ -1,0 +1,132 @@
+---
+import PackageLayout from "#layouts/PackageLayout.astro";
+import { prisma } from "#lib/server/db";
+import type { Revision } from "@prisma/client";
+import moment from "moment"
+import { CheckCircled, Download, GithubLogo } from "radix-svelte-icons";
+import { parse, type SemVer } from "semver";
+
+
+const { name } = Astro.params;
+
+const revisions = await prisma.revision.findMany({
+	where: {
+		name
+	},
+	orderBy: {
+		createdAt: "desc"
+	},
+	include: {
+		author: true,
+		_count: {
+			select: {
+				dependencies: true,
+				dependents: true
+			}
+		},
+		maintainers: true
+	}
+})
+
+if (revisions.length == 0) {
+	return Astro.redirect("/404")
+}
+
+const pkg = revisions[0];
+
+// Get all major and minor revisions with their general changes description.
+const majorMinorRevisions: Revision[] = []
+
+let lastVersion: SemVer | undefined;
+for (const rev of revisions) {
+	// Check if new revision version is greater.
+	const revVersion = parse(rev.version);
+	if (!revVersion) continue;
+	if (!lastVersion) {
+		majorMinorRevisions.push(rev);
+		continue;
+	}
+
+	if (revVersion.major > lastVersion.major) {
+		majorMinorRevisions.push(rev);
+	} else if (revVersion.minor > lastVersion.minor) {
+		majorMinorRevisions.push(rev);
+	}
+	lastVersion = revVersion
+}
+
+---
+
+<PackageLayout title={`${name} - Stack`} query={pkg.name}>
+	<div class="container max-w-[1400px] mx-auto grid grid-cols-[3fr,1fr] gap-16">
+		<div>
+			<h1 class="mb-4">{pkg.name}</h1>
+			<p>{pkg.description}</p>
+			<div class="flex flex-col items-start">
+				<h2>Release Timeline</h2>
+				<ul class="timeline timeline-vertical prose-hr:my-0 prose-li:my-0">
+					{majorMinorRevisions.map(revision => {
+						return (<li>
+						<div class="timeline-start">{moment(revision.createdAt).fromNow()}</div>
+						<div class="timeline-middle">
+							<CheckCircled size={24}></CheckCircled>
+						</div>
+						<div class="timeline-end timeline-box"><strong>{revision.version}</strong> - {revision.description}</div>
+						<hr />
+					</li>)
+					})}
+				</ul>
+			</div>
+		</div>
+
+		<div class="flex flex-col">
+			<h4>Install</h4>
+			<div class="mockup-code before:hidden">
+				<pre data-prefix="$" class="px-0"><code>stack push {pkg.name}</code></pre>
+			</div>
+			<h4>Repository</h4>
+			<a href={pkg.repository} class="flex flex-row gap-2 items-center">
+				{pkg.repository.match("github.com") ? <GithubLogo size={24}></GithubLogo> : null}
+				{pkg.repository.replace(/https?:\/\//, "")}</a>
+			<hr class="my-4">
+			<h4 class="flex flex-row gap-2 items-center"><Download size={18}></Download> Monthly Downloads</h4>
+			<span class="font-mono">{pkg.downloadsLastMonth}</span>
+			<hr class="my-4">
+			<div class="grid grid-cols-2">
+				<div>
+					<h4 class="my-0">Version</h4>
+					<span class="font-mono">{pkg.version}</span>
+				</div>
+				<div>
+					<h4 class="my-0">License</h4>
+					<span>{pkg.license}</span>
+				</div>
+			</div>
+			<hr class="my-4">
+			<div class="grid grid-cols-2">
+				<div>
+					<h4 class="my-0">Size</h4>
+					<span class="font-mono">{pkg.size}</span>
+				</div>
+				<div>
+					<h4 class="my-0">Language</h4>
+					<span>{pkg.language}</span>
+				</div>
+			</div>
+			<hr class="my-4">
+			<div class="grid grid-cols-2">
+				<div>
+					<h4 class="my-0"><a href={`/package/${pkg.name}/${pkg.version}/dependencies`}>Dependencies</a></h4>
+					<span class="font-mono">{pkg._count.dependencies}</span>
+				</div>
+				<div>
+					<h4 class="my-0"><a href={`/package/${pkg.name}/${pkg.version}/dependents`}>Dependents</a></h4>
+					<span class="font-mono">{pkg._count.dependents}</span>
+				</div>
+			</div>
+			<hr class="my-4">
+			<h4 class="flex flex-row gap-2 items-center">Last Revision</h4>
+			<span>{moment(pkg.createdAt).fromNow()}</span>
+		</div>
+	</div>
+</PackageLayout>

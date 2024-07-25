@@ -1,0 +1,43 @@
+---
+import PackageLayout from "#layouts/PackageLayout.astro";
+import { prisma } from "#lib/server/db";
+
+
+const { name, version } = Astro.params;
+
+if (!name || !version) {
+	return Astro.redirect("/404")
+}
+
+const pkg = await prisma.revision.findUnique({
+	where: {
+		version_name: {
+			name,
+			version
+		}
+	},
+	include: {
+		author: true,
+		_count: {
+			select: {
+				dependencies: true,
+				dependents: true
+			}
+		},
+		maintainers: true
+	}
+})
+
+if (!pkg) {
+	return Astro.redirect("/404")
+}
+
+---
+
+<PackageLayout title={`${name} - Stack`} query={pkg.name}>
+	<div class="container max-w-[1400px] mx-auto grid grid-cols-[3fr,1fr] gap-16">
+		<div>
+			<a href={`/package/${pkg.name}`}><h1 class="mb-4">{pkg.name}</h1></a>
+		</div>
+	</div>
+</PackageLayout>

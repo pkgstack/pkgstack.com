@@ -1,0 +1,73 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+// Looking for ways to speed up your queries, or scale easily with your serverless or edge functions?
+// Try Prisma Accelerate: https://pris.ly/cli/accelerate-init
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "sqlite"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+	id        String   @id @default(cuid())
+	email     String   @unique
+	name      String?
+	password  String
+	packages  Revision[]
+	createdAt DateTime @default(now())
+	updatedAt DateTime @updatedAt
+
+	maintainedPackages Revision[] @relation("Maintainer")
+	refreshTokens RefreshToken[]
+}
+
+model Revision {
+	id        String   @id @default(cuid())
+	version   String
+	// Revision size in bytes
+	size Int
+	// Number of total downloads
+	downloads Int
+	// Downloads in the last 30 days
+	downloadsLastMonth Int
+	// GitHub repository URL
+	repository String
+	name			 String
+	language String?
+	description String?
+	license String?
+	signature String?
+	dependencies Revision[] @relation("RevisionDependencies")
+	dependents Revision[] @relation("RevisionDependencies")
+
+	devDependencies Revision[] @relation("RevisionDevDependencies")
+	devDependents Revision[] @relation("RevisionDevDependencies")
+
+	// tags String[]
+	// keywords String[]
+
+	maintainers User[] @relation("Maintainer")
+
+	createdAt DateTime @default(now())
+	updatedAt DateTime @updatedAt
+
+	authorId String
+	author User @relation(fields: [authorId], references: [id])
+
+	@@index(name: "RevisionVersion", fields: [version])
+	@@unique([version, name])
+}
+
+model RefreshToken {
+	id String @id @default(cuid())
+	token String @unique
+	valid Boolean
+	userId String
+	user User @relation(fields: [userId], references: [id])
+	createdAt DateTime @default(now())
+}

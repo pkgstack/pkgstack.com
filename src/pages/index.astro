@@ -1,0 +1,62 @@
+---
+import Layout from "#layouts/Layout.astro"
+import { GithubLogo, MagnifyingGlass } from "radix-svelte-icons";
+import ReactiveImage from "#components/ReactiveImage.svelte"
+import "svelte-highlight/styles/gruvbox-dark-hard.css"
+
+import { prisma } from "#lib/server/db"
+import ReactiveSvg from "#components/ReactiveSvg.svelte";
+import PackageSearchBar from "#components/PackageSearchBar.svelte";
+
+const packages = await prisma.revision.count();
+const users = await prisma.user.count();
+---
+
+<Layout title="Stack Package Manager">
+	<div class="hero bg-base-100 my-16">
+		<div class="hero-content flex-col lg:flex-row-reverse">
+			<ReactiveSvg src="/stack/logo-dark.svg" class="h-[620px] w-[620px] my-0" client:load></ReactiveSvg>
+			<div>
+				<h1 class="text-5xl font-bold">Stack</h1>
+				<p class="py-6">
+					A language-agnostic package manager. Unopinionated and flexible. Stack lets you import code from any language that supports the METALS intermediate language.
+				</p>
+				
+				<div class="flex gap-4 items-center">
+					<PackageSearchBar client:load></PackageSearchBar>
+					<a
+						class="btn btn-primary btn-lg no-underline"
+						href="https://github.com/the-meta-lang/stack"
+						target="_blank"><GithubLogo size={24} />View on GitHub</a>
+				</div>
+			</div>
+		</div>
+	</div>
+	<div class="hero py-16 bg-base-200 w-full">
+		<div class="hero-content flex flex-col">
+			<h2 class="mb-8 mt-0">Push and pop to your heart's content!</h2>
+			<p class="text-center">Stack allows for easy interoperability between any language that supports the METALS intermediate language. Code can be imported into any supported language and compiled on the fly.</p>
+			<div class="stats shadow">
+				<div class="stat">
+					<div class="stat-title">Packages</div>
+					<div class="stat-value">{packages}</div>
+				</div>
+				<div class="stat">
+					<div class="stat-title">Users</div>
+					<div class="stat-value">{users}</div>
+				</div>
+			</div>
+		</div>
+	</div>
+	<div class="hero py-16 bg-base-100 w-full">
+		<div class="hero-content flex flex-col lg:flex-row gap-16">
+			<ReactiveSvg src="/images/github-logo-vector.svg" class="w-full h-48 relative block" client:load></ReactiveSvg>
+			<div>
+				<h2 class="mb-8 mt-0">Damn near lightspeed</h2>
+				<p>
+					Stack uses the existing infrastructure that GitHub provides to host packages. Our servers only handle metadata and package resolution.
+				</p>
+			</div>
+		</div>
+	</div>
+</Layout>

@@ -1,0 +1,101 @@
+---
+import { Highlight } from "svelte-highlight";
+import Layout from "../../layouts/Layout.astro";
+import { bash } from "svelte-highlight/languages";
+import ContentLayout from "../../layouts/ContentLayout.astro";
+import InstallationPlatform from "../../components/InstallationPlatform.svelte";
+---
+
+<ContentLayout title="Install Stack Package Manager">
+	<div class="max-w-screen-xl mx-auto px-4">
+		<h1 class="text-6xl font-extrabold">Installing Stack</h1>
+	</div>
+	<div class="hero bg-accent w-full pb-12 px-4">
+		<div class="max-w-screen-xl w-full">
+			<div class="w-full">
+				<h2
+					class="text-accent-content border-b-[16px] w-max border-b-neutral-content"
+				>
+					Using the install script
+				</h2>
+				<InstallationPlatform client:load></InstallationPlatform>
+			</div>
+		</div>
+	</div>
+	<div class="hero bg-base-100 w-full text-left px-4">
+		<div class="max-w-screen-xl w-full">
+			<div class="w-full">
+				<h2
+					class="text-accent-content border-b-[16px] w-max border-b-neutral-content"
+				>
+					Standalone installation
+				</h2>
+				<p>
+					Stack is also available as a standalone binary. You can install it for your platform by running the following in your terminal. This will download a zip file containing the binaries. You can specify a version number to download a specific version or use <code>latest</code> to download the newest version. All downloads are also available as releases on <a href="https://github.com/the-meta-lang/meta/releases/">GitHub</a>.
+				</p>
+				<div class="mockup-code">
+					<Highlight
+						language={bash}
+						code={`curl -fsSL https://pkgstack.com/bin/linux-x64/latest`}
+					/>
+				</div>
+			</div>
+			<hr>
+			<div class="w-full">
+				<h2
+					class="text-accent-content border-b-[16px] w-max border-b-primary"
+				>
+					Notes about the installation
+				</h2>
+				<h3>Getting Started</h3>
+				<p>
+					If you're just getting started with META and would like a
+					more detailed walk-through, see our <a href="/docs"
+						>documentation pages</a
+					>.
+				</p>
+				<h3>Toolchain management with <code>metax</code></h3>
+				<p>
+					META is installed and managed by the metax tool. Since every
+					platform is different we support many different builds,
+					METAx automatically manages them and installs the correct
+					version of the META binary.
+				</p>
+				<p>
+					You will automatically be informed when there are any
+					updates available for META or METAx. Updates can be
+					installed at any time by running <code
+						>metax self update</code
+					>
+				</p>
+				<p>
+					For more information see the <a href="/docs/meta-x"
+						>METAx documentation</a
+					>.
+				</p>
+				<h3>Configuring the <code>PATH</code> environment variable</h3>
+				<p>
+					All tools are installed to the ~/.metax/bin directory, and
+					this is where you will find the META toolchain, including
+					METAx.
+				</p>
+				<p>
+					During installation METAx will attempt to configure the PATH
+					accordingly. Because of differences between platforms,
+					command shells and environments, the modifications to PATH
+					may not take effect until the console is restarted, or the
+					user is logged out, or it may not succeed at all.
+				</p>
+				<p>
+					If, after installation, running <code>metax -v</code> in the
+					console fails, this is the most likely reason.
+				</p>
+				<h3>Uninstall METAx</h3>
+				<p>
+					If at any point you would like to uninstall METAx, you can
+					run <code>metax self uninstall</code>. We'll miss you though!
+				</p>
+			</div>
+		</div>
+	</div>
+</ContentLayout>
