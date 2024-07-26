@@ -7,14 +7,18 @@
 
 <br />
 <div align="center">
+
   <a href="https://github.com/Letsmoe/pkgstack.com">
-    <img src="./public/stack/logo-dark.svg" alt="Logo" width="300" height="300">
+	<picture>
+<source srcset="./public/stack/logo-light.svg" media="(prefers-color-scheme: dark)">
+<img src="./public/stack/logo-dark.svg" width="300" height="300" alt="Stack">
+</picture>
   </a>
 
 <h3 align="center"><a href="https://pkgstack.com">pkgstack.com</a></h3>
 
   <p align="center">
-    The home of the META compiler toolchain.
+    A language-agnostic package manager.
     <br />
     <a href="https://pkgstack.com/docs"><strong>Explore the docs »</strong></a>
     <br />
@@ -25,11 +29,21 @@
 </div>
 
 
-<!-- ROADMAP -->
 ## Roadmap
 
-- [ ] Documentation Completed
-- [ ] Playground finished
+- [x] User registration and login
+- [ ] API Completed
+  - [x] Retrieving Packages
+  - [x] Submitting Packages
+  - [ ] Updating Packages
+- [ ] Frontend Completed
+	- [x] Home Page
+	- [ ] Documentation Page
+	- [ ] Package Page
+	- [ ] User Page
+	- [ ] Search Page
+	- [ ] About Page
+	- [ ] Contact Page
 
 See the [open issues](https://github.com/Letsmoe/pkgstack.com/issues) for a full list of proposed features (and known issues).
 

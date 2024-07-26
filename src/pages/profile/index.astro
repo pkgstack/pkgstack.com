@@ -1,0 +1,74 @@
+---
+import PackageLayout from "#layouts/PackageLayout.astro";
+import { accessTokenValid, generateAccessTokenFromRefreshToken } from "#lib/server/accessToken";
+import { prisma } from "#lib/server/db";
+
+// Get the session key from the cookies.
+const accessToken = Astro.cookies.get("accessToken")?.value;
+const refreshToken = Astro.cookies.get("refreshToken")?.value;
+
+// Validate the access token
+if (!accessToken || !refreshToken) {
+	Astro.cookies.delete("accessToken");
+	Astro.cookies.delete("refreshToken");
+	return Astro.redirect("/auth/login")
+};
+
+let valid = accessTokenValid(accessToken);
+
+if (!valid) {
+	// Try getting a new access token from the refresh token
+	let newAccessToken = await generateAccessTokenFromRefreshToken(refreshToken);
+
+	if (newAccessToken === null) {
+		return Astro.redirect("/auth/login");
+	}
+	// Set the new access token as a cookie
+	Astro.cookies.set("accessToken", newAccessToken.token, { path: "/", expires: new Date(newAccessToken.data.exp) });
+	valid = newAccessToken.data
+}
+
+// Get the user's information
+const user = await prisma.user.findUnique({
+	where: {
+		id: valid.uid
+	},
+});
+
+if (!user) {
+	return Astro.redirect("/auth/login");
+}
+
+const userPackages = await prisma.revision.findMany({
+	where: {
+		author: {
+			id: user.id
+		}
+	},
+	distinct: ["name"],
+	orderBy: {
+		createdAt: "desc"
+	}
+})
+---
+
+<PackageLayout title="Profile - Stack" query={""}>
+	<div class="container max-w-[1400px] mx-auto grid grid-cols-[3fr,1fr] gap-16">
+		<div>
+			<h1>Welcome back, {user.username}</h1>
+			<p>Here are the packages you've uploaded to the Stack Registry.</p>
+			{userPackages.map((pkg) => (
+				<div class="card">
+					<div class="card-body">
+						<h2>{pkg.name}</h2>
+						<p>{pkg.description}</p>
+						<div class="flex flex-row gap-4">
+							<a href={`/package/${pkg.name}`} class="btn btn-primary">View</a>
+							<a href={`/package/${pkg.name}/edit`} class="btn btn-secondary">Edit</a>
+						</div>
+					</div>
+				</div>
+			))}
+		</div>
+	</div>
+</PackageLayout>

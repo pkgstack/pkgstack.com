@@ -1,0 +1,6 @@
+---
+Astro.cookies.delete("accessToken");
+Astro.cookies.delete("refreshToken");
+
+return Astro.redirect("/auth/login")
+---

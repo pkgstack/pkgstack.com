@@ -1,10 +1,9 @@
 ---
-import { getCollection, type CollectionEntry } from "astro:content";
+import { getCollection } from "astro:content";
 import DocumentationLayout from "#layouts/DocumentationLayout.astro";
 import HeadingTree from "#components/HeadingTree.svelte";
 import CollectionTree from "#components/CollectionTree.svelte";
 import { getArticleTree } from "#lib/getArticleTree";
-import Footer from "#components/Footer.astro";
 import { getArticleParents } from "#lib/getArticleParents";
 
 const slug = Astro.params.slug as string;

@@ -1,0 +1,40 @@
+---
+import Footer from '../components/Footer.astro';
+import Header from '../components/Header.svelte';
+import "@fontsource/ubuntu-mono";
+import "../style/global.css"
+import ReactiveSvg from '#components/ReactiveSvg.svelte';
+import LightModeSetter from '#components/LightModeSetter.svelte';
+import ThemeController from '#components/ThemeController.svelte';
+interface Props {
+	title: string;
+	favicon?: string;
+	favicondark?: string;
+}
+
+const { title, favicon, favicondark } = Astro.props;
+
+const lightTheme = Astro.cookies.get('light')?.boolean() || false;
+---
+
+<!doctype html>
+<html lang="en">
+	<head>
+		<meta charset="UTF-8" />
+		<meta name="description" content="Astro description" />
+		<meta name="viewport" content="width=device-width" />
+		<link rel="icon" type="image/svg+xml" href={favicon ? favicon : "/favicon.svg"} media="(prefers-color-scheme: light)" />
+		<link rel="icon" type="image/svg+xml" href={favicondark ? favicondark : "/favicon-dark.svg"} media="(prefers-color-scheme: dark)" />
+		<title>{title}</title>
+	</head>
+	<body class="w-full">
+		<LightModeSetter lightModeEnabled={lightTheme} client:load></LightModeSetter>
+		<div class="fixed top-0 left-0 w-screen px-16 py-8 flex flex-row justify-between items-center">
+			<a href="/"><ReactiveSvg src='/stack/logo-light.svg' class="w-16 h-16" client:load></ReactiveSvg></a>
+			<ThemeController client:load></ThemeController>
+		</div>
+		<main class="w-full h-screen max-w-full flex items-center justify-center prose ">
+			<slot />
+		</main>
+	</body>
+</html>

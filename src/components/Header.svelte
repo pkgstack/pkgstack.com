@@ -4,11 +4,14 @@
 	import { lightMode } from "./shared";
 	import DiscordLogo from "radix-svelte-icons/src/lib/icons/DiscordLogo.svelte";
 	import ReactiveSvg from "./ReactiveSvg.svelte";
+	import Cookies from "js-cookie";
 
 	export let lightThemeEnabled: boolean = true;
 	export let favicon: string = "/favicon.svg";
 
 	lightMode.set(lightThemeEnabled);
+
+	const loggedIn = Cookies.get("accessToken") !== undefined;
 </script>
 
 <nav class="navbar bg-base-100 border-b-2 border-b-base-200 h-20 sticky top-0 z-10">
@@ -20,20 +23,23 @@
 			<a href="/install" class="link link-hover">Install</a>
 			<a href="/docs" class="link link-hover">Documentation</a>
 			<a href="/about" class="link link-hover">About</a>
+			{#if loggedIn}
 			<div class="dropdown dropdown-end">
 				<div  tabindex="0" role="button" class="avatar">
 					<div class="rounded-full px-2">
 						<Avatar size={24} class="w-full h-full" />
 					</div>
 				</div>
-				<ul tabindex="0" class="dropdown-content menu bg-base-200 rounded-box z-[1] w-52 p-2 shadow-lg">
-					<li><a>Profile</a></li>
+				<ul tabindex="0" class="dropdown-content menu bg-base-200 rounded-box z-50 w-52 p-2 shadow-lg">
+					<li><a href="/profile">Profile</a></li>
 					<li><a>Packages</a></li>
 					<li><a>Organizations</a></li>
 					<div class="divider my-1"></div>
 					<li><a>Settings</a></li>
+					<li><a href="/auth/logout">Log Out</a></li>
 				</ul>
 			</div>
+			{/if}
 			<ThemeController></ThemeController>
 		</div>
 		<div class="drawer w-auto md:hidden">
